@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id   @default(cuid())
+  clerkId   String    @unique
+  email     String    @unique
+  role      UserRole  @default(PATIENT)
+  firstName String?
+  lastName  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  patientProfile      Patient?
+  therapistProfile    Therapist?
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+enum UserRole {
+  PATIENT
+  THERAPIST
+  ADMIN
+}
+
+model Therapist {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio                 String? @db.Text
+  specialization      String[]
+  licenseNumber       String
+  licenseDocument     String?
+  hourlyRate          Float
+  stripeAccountId     String?   @unique
+  onboardingComplete  Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  availability        Availability[]
+  appointments        Appointment[]
+
+  @@index([userId])
+  @@index([stripeAccountId])
+}
+
+model Patient {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber   String?
+  address       String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  appointments  Appointment[]
+
+  @@index([userId])
+}
+
+model Availability {
+  id                String      @id @default(cuid())
+  therapistId       String
+  therapist         Therapist   @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  daysOfWeek        Int
+  startTime         String
+  endTime           String
+  isAvailable       Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([therapistId])
+  @@index([daysOfWeek])
+}
+
+model Appointment {
+  id                  String              @id @default(cuid())
+  patientId           String
+  patient             Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  therapistId         String
+  therapist           Therapist           @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  scheduledAt         DateTime
+  duration            Int                 @default(60)
+  status              AppointmentStatus   @default(PENDING)
+
+  paymentIntentId     String?             @unique
+  amount              Float
+  platformFee         Float
+
+  videoRoomUrl        String?
+  sessionStarted      DateTime?
+  sessionEnded        DateTime?
+
+  patientApproved     Boolean              @default(false)
+  therapistApproved   Boolean              @default(false)
+  completedAt         DateTime?
+
+  notes               String?              @db.Text
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([patientId])
+  @@index([therapistId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  RELEASED
+  CANCELLED
+  DISPUTED
+}
