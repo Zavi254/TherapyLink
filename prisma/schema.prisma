@@ -7,14 +7,16 @@ datasource db {
 }
 
 model User {
-  id        String    @id   @default(cuid())
-  clerkId   String    @unique
-  email     String    @unique
-  role      UserRole  @default(PATIENT)
-  firstName String?
-  lastName  String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String    @id   @default(cuid())
+  clerkId           String    @unique
+  email             String    @unique
+  role              UserRole  @default(PATIENT)
+  firstName         String?
+  lastName          String?
+  phone             String?
+  profilePhotoUrl   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   patientProfile      Patient?
   therapistProfile    Therapist?
@@ -30,24 +32,41 @@ enum UserRole {
 }
 
 model Therapist {
-  id                  String  @id @default(cuid())
-  userId              String  @unique
-  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bio                 String? @db.Text
-  specialization      String[]
-  licenseNumber       String
-  licenseDocument     String?
-  hourlyRate          Float
-  stripeAccountId     String?   @unique
-  onboardingComplete  Boolean   @default(false)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                        String  @id @default(cuid())
+  userId                    String  @unique
+  user                      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  bio                       String? @db.Text
+  specialization            String[]
+  experience                Int?
 
-  availability        Availability[]
-  appointments        Appointment[]
+  // Credentials
+  licenseNumber             String
+  licenseDocument           String?
+  licenseState              String?
+  licenseExpirationDate     DateTime?
+  licenseDocumentUrl        String?
+  additionalCertifications  Json?
+ 
+  // Payment
+  hourlyRate                Float
+  stripeAccountId           String?   @unique
+  stripeOnboardingComplete  Boolean   @default(false)
+
+  // Status
+  onboardingComplete        Boolean   @default(false)
+  isActive                  Boolean   @default(true)
+
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  availability              Availability[]
+  appointments              Appointment[]
 
   @@index([userId])
   @@index([stripeAccountId])
+  @@index([specialization])
 }
 
 model Patient {
@@ -68,40 +87,55 @@ model Availability {
   id                String      @id @default(cuid())
   therapistId       String
   therapist         Therapist   @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  // Day of week (0-6, where 0 is Sunday)
   daysOfWeek        Int
-  startTime         String
-  endTime           String
+  startTime         String      // Format: "HH:MM"
+  endTime           String      // Format: "HH:MM"
   isAvailable       Boolean      @default(true)
+  
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
   @@index([therapistId])
   @@index([daysOfWeek])
+  @@index([therapistId, daysOfWeek])
 }
 
 model Appointment {
   id                  String              @id @default(cuid())
+
+  // Participants
   patientId           String
   patient             Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
   therapistId         String
   therapist           Therapist           @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  // Scheduling
   scheduledAt         DateTime
-  duration            Int                 @default(60)
+  duration            Int                 @default(60) // in minutes
   status              AppointmentStatus   @default(PENDING)
 
+  // Payment
   paymentIntentId     String?             @unique
   amount              Float
-  platformFee         Float
+  platformFee         Float               // 15% of amount
+  therapistEarnings   Float               // 85% of amount
 
+  //Session 
   videoRoomUrl        String?
-  sessionStarted      DateTime?
-  sessionEnded        DateTime?
+  sessionStartedAt    DateTime?
+  sessionEndedAt      DateTime?
 
+  // Approval & Completion
   patientApproved     Boolean              @default(false)
   therapistApproved   Boolean              @default(false)
   completedAt         DateTime?
+  paymentReleasedAt   DateTime?
 
+  //Notes 
   notes               String?              @db.Text
+  
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
@@ -112,11 +146,11 @@ model Appointment {
 }
 
 enum AppointmentStatus {
-  PENDING
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  RELEASED
-  CANCELLED
-  DISPUTED
+  PENDING                // Awaiting confirmation
+  CONFIRMED             // Both parties confirmed
+  IN_PROGRESS          // Session is ongoing
+  COMPLETED           // Session ended, awaiting approval
+  RELEASED           // Payment released to therapist
+  CANCELLED         // Cancelled by either party
+  DISPUTED          // Under dispute
 }

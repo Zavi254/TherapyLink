@@ -1,4 +1,4 @@
-export function TextArea({ label, error, maxLength, showCount = true, value = "", className = "", ...props }) {
+export function Textarea({ label, error, maxLength, showCount = true, value = "", className = "", ...props }) {
     return (
         <div className="flex flex-col gap-2">
             {label && (
