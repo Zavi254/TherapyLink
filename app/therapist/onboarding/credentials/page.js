@@ -21,6 +21,10 @@ export default async function CredentialsPage() {
         redirect("/dashboard");
     }
 
+    if (user.therapistProfile?.onboardingComplete) {
+        redirect("/dashboard");
+    }
+
     return (
         <OnboardingLayout>
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
