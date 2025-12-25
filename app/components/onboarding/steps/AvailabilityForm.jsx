@@ -138,19 +138,106 @@ export function AvailabilityForm() {
                                             <div className="flex flex-col gap-3 mt-1 pl-1">
                                                 {dayData.timeBlocks.map((block, index) => (
                                                     <div key={index} className="flex items-center gap-3">
-
+                                                        <div className="flex items-center gap-2 flex-1">
+                                                            <input
+                                                                type="time"
+                                                                value={block.startTime}
+                                                                onChange={(e) => handleTimeChange(day, index, 'startTime', e.target.value)}
+                                                                className="w-full bg-[#1e271c] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                                            />
+                                                            <span className="text-gray-400 text-sm">to</span>
+                                                            <input
+                                                                type="time"
+                                                                value={block.endTime}
+                                                                onChange={(e) => handleTimeChange(day, index, 'endTime', e.target.value)}
+                                                                className="w-full bg-[#1e271c] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                                            />
+                                                        </div>
+                                                        <button
+                                                            onClick={() => removeTimeBlock(day, index)}
+                                                            className="text-gray-400 hover:text-red-400 transition-colors p-1"
+                                                            type="button"
+                                                        >
+                                                            <span className="material-symbols-outlined text-lg">close</span>
+                                                        </button>
                                                     </div>
                                                 ))}
+
+                                                <button
+                                                    onClick={() => handleAddTimeBlock(day)}
+                                                    className="flex items-center gap-2 text-sm text-blue-500 font-bold hover:text-blue-400 mt-2 self-start py-1 px-2 rounded hover:bg-blue-500/10 transition-colors"
+                                                    type="button"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">add</span>
+                                                    Add time block
+                                                </button>
                                             </div>
                                         )}
-
                                     </div>
-                                )
 
+                                );
                             })}
                         </div>
 
+                        <div>
+                            <button
+                                onClick={applyScheduleToWeekdays}
+                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all flex-1"
+                                type="button"
+                            >
+                                Apply to all weekdays
+                            </button>
+                            <button
+                                onClick={applyScheduleToAllDays}
+                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all flex-1"
+                                type="button"
+                            >
+                                Apply to all days
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Hourly Rate */}
+                    <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-6 md:p-8 flex flex-col gap-6">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="material-symbols-outlined text-blue-500">payments</span>
+                            Hourly Rate
+                        </h3>
+
+                        <div className="flex flex-col gap-3">
+                            <div className="relative">
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-white text-2xl font-bold">
+                                    $
+                                </span>
+                                <input
+                                    type="number"
+                                    value={hourlyRate}
+                                    onChange={(e) => setHourlyRate(Number(e.target.value))}
+                                    className="w-full bg-[#131811] border border-[#2c3928] rounded-xl pl-12 pr-24 py-5 text-white text-3xl font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-white/20"
+                                    placeholder="0"
+                                    min={50}
+                                    max={10000}
+                                />
+                                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-medium">
+                                    / hour
+                                </span>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                                You&apos;ll receive{" "}
+                                <span className="text-green-500 font-bold">
+                                    85% (${calculateNetRate(hourlyRate)})
+                                </span>{' '}
+                                after each session. Platform fee: 15%
+                            </p>
+                        </div>
+                    </div>
+
+                    <NavigationButtons
+                        onBack={handleBack}
+                        onContinue={handleContinue}
+                        continueText="Continue"
+                        loading={loading}
+                    />
                 </form>
             </div>
 
