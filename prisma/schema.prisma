@@ -43,6 +43,7 @@ model Therapist {
 
   // Credentials
   licenseNumber             String
+  licenseType               String?
   licenseDocument           String?
   licenseState              String?
   licenseExpirationDate     DateTime?
