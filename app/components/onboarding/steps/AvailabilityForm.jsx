@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import { useOnboarding } from "@/lib/hooks/useOnboarding";
@@ -18,7 +20,7 @@ const DAY_LABELS = {
     sunday: 'Sunday',
 };
 
-export function AvailabilityForm() {
+export default function AvailabilityForm() {
     const {
         availability,
         updateAvailability,

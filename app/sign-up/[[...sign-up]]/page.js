@@ -47,8 +47,8 @@ export default function SignUpPage() {
                             <div className="space-y-3">
                                 <label
                                     className={`flex items-center p-4 border-2 rounded-lg transition-colors ${isSubmitting
-                                            ? 'opacity-50 cursor-not-allowed'
-                                            : 'cursor-pointer hover:bg-gray-50'
+                                        ? 'opacity-50 cursor-not-allowed'
+                                        : 'cursor-pointer hover:bg-gray-50'
                                         }`}
                                     style={{ borderColor: role === 'PATIENT' ? '#4F46E5' : '#E5E7EB' }}
                                 >
@@ -73,8 +73,8 @@ export default function SignUpPage() {
 
                                 <label
                                     className={`flex items-center p-4 border-2 rounded-lg transition-colors ${isSubmitting
-                                            ? 'opacity-50 cursor-not-allowed'
-                                            : 'cursor-pointer hover:bg-gray-50'
+                                        ? 'opacity-50 cursor-not-allowed'
+                                        : 'cursor-pointer hover:bg-gray-50'
                                         }`}
                                     style={{ borderColor: role === 'THERAPIST' ? '#4F46E5' : '#E5E7EB' }}
                                 >
@@ -111,7 +111,7 @@ export default function SignUpPage() {
                             },
                         }}
                         unsafeMetadata={{ role }}
-                        forceRedirectUrl={role === 'THERAPIST' ? '/onboarding/therapist' : '/dashboard'}
+                        forceRedirectUrl={role === 'THERAPIST' ? 'therapist/onboarding/basic-info' : '/dashboard'}
                     />
                 </div>
             </div>

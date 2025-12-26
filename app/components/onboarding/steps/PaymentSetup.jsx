@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import { useOnboarding } from "@/lib/hooks/useOnboarding";
 
-export function PaymentSetup() {
+export default function PaymentSetup() {
     const { payment, updatePayment, setCurrentStep } = useOnboardingStore();
     const { loading, goToPreviousStep } = useOnboarding();
 

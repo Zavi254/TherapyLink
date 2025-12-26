@@ -10,7 +10,7 @@ import { Select } from "../ui/Select";
 import { NavigationButtons } from "../shared/NavigationButtons";
 import { UploadButton } from "@/lib/uploadthing";
 
-export function CredentialsForm() {
+export default function CredentialsForm() {
     const { credentials, updateCredentials, addCertification, removeCertification, setCurrentStep } = useOnboardingStore();
     const { loading, saveStep, goToNextStep, goToPreviousStep } = useOnboarding();
     const { errors, validate, clearError } = useFormValidation(credentialSchema);
