@@ -21,6 +21,10 @@ export default async function DashboardPage() {
         return <div>Loading...</div>
     }
 
+    if (user.role === "THERAPIST" && !user.therapistProfile?.onboardingComplete) {
+        redirect("/therapist/onboarding/basic-info");
+    }
+
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -45,8 +49,13 @@ export default async function DashboardPage() {
                                     Therapist Profile
                                 </h2>
                                 <p className="text-blue-700">
-                                    Onboarding Status: {user.therapistProfile?.onboardingComplete ? 'Complete' : 'Incomplete'}
+                                    Onboarding Status: {user.therapistProfile?.onboardingComplete ? '✅ Complete' : '⏳ Incomplete'}
                                 </p>
+                                {user.therapistProfile?.stripeOnboardingComplete && (
+                                    <p className="text-blue-700 mt-2">
+                                        Stripe Status: ✅ Connected
+                                    </p>
+                                )}
                             </div>
                         )}
 

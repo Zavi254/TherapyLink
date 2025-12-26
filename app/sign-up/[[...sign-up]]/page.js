@@ -111,7 +111,11 @@ export default function SignUpPage() {
                             },
                         }}
                         unsafeMetadata={{ role }}
-                        forceRedirectUrl={role === 'THERAPIST' ? 'therapist/onboarding/basic-info' : '/dashboard'}
+                        forceRedirectUrl={
+                            role === 'THERAPIST'
+                                ? 'therapist/onboarding/basic-info'
+                                : '/dashboard'
+                        }
                     />
                 </div>
             </div>
