@@ -1,3 +1,5 @@
+"use client";
+
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import Image from "next/image";
 
