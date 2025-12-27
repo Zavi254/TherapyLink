@@ -168,7 +168,10 @@ export default function CredentialsForm() {
                                 onUploadError={(error) => {
                                     alert(`Upload failed: ${error.message}`);
                                 }}
-                                className="ut-button:bg-blue-600 ut-button:hover:bg-blue-700 ut-button:ut-readying:bg-blue-600/50"
+                                appearance={{
+                                    button: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg",
+                                    allowedContent: "text-xs text-gray-400 mt-2"
+                                }}
                             />
                             <p className="text-xs text-gray-400 mt-2">PDF, JPG, PNG (Max 10MB)</p>
                         </div>
