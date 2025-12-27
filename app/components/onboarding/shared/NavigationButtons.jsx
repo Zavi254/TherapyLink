@@ -1,4 +1,5 @@
 import { Button } from "../ui/Button";
+import { LuArrowLeft, LuArrowRight } from "react-icons/lu";
 
 export function NavigationButtons({
     onBack,
@@ -14,7 +15,7 @@ export function NavigationButtons({
                 <Button
                     variant="secondary"
                     onClick={onBack}
-                    icon={<span className="material-symbols-outlined">arrow_back</span>}
+                    icon={<LuArrowLeft size={20} />}
                     iconPosition="left"
                 >
                     Back
@@ -24,7 +25,7 @@ export function NavigationButtons({
             <Button
                 variant="primary"
                 onClick={onContinue}
-                icon={<span className="material-symbols-outlined">arrow_forward</span>}
+                icon={<LuArrowRight size={20} />}
                 loading={loading}
                 disabled={disabled}
                 className="w-full md:w-auto"

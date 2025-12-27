@@ -1,4 +1,5 @@
 import useOnboardingStore from '@/lib/store/onboardingStore';
+import { LuInfo, LuShieldCheck } from 'react-icons/lu';
 
 export function OnboardingSidebar() {
     const { currentStep, completedSteps } = useOnboardingStore();
@@ -23,7 +24,7 @@ export function OnboardingSidebar() {
                     {/* Logo */}
                     <div className="flex items-center gap-3 px-2">
                         <div className="bg-blue-500/20 flex items-center justify-center aspect-square rounded-full size-10 text-blue-500">
-                            <span className="material-symbols-outlined">health_and_safety</span>
+                            <LuShieldCheck size={24} />
                         </div>
                         <div className="flex flex-col">
                             <h1 className="text-white text-lg font-bold leading-normal">TherapyLink</h1>
@@ -47,10 +48,10 @@ export function OnboardingSidebar() {
                                         <div className={`flex items-center gap-3 group ${status === 'upcoming' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
                                             }`}>
                                             <div className={`flex items-center justify-center size-8 rounded-full text-sm font-bold border-2 ${status === 'completed'
-                                                    ? 'bg-green-500 text-white border-green-500'
-                                                    : status === 'current'
-                                                        ? 'bg-blue-600 text-white border-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.5)]'
-                                                        : 'bg-transparent text-gray-400 border-gray-600'
+                                                ? 'bg-green-500 text-white border-green-500'
+                                                : status === 'current'
+                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                                                    : 'bg-transparent text-gray-400 border-gray-600'
                                                 }`}>
                                                 {status === 'completed' ? (
                                                     <span className="material-symbols-outlined text-sm">check</span>
@@ -59,8 +60,8 @@ export function OnboardingSidebar() {
                                                 )}
                                             </div>
                                             <span className={`text-sm ${status === 'completed' || status === 'current'
-                                                    ? 'text-white font-bold'
-                                                    : 'text-gray-400 font-medium'
+                                                ? 'text-white font-bold'
+                                                : 'text-gray-400 font-medium'
                                                 }`}>
                                                 {step.title}
                                             </span>
@@ -80,7 +81,7 @@ export function OnboardingSidebar() {
                 {/* Help Card */}
                 <div className="bg-[#1e271c] p-4 rounded-xl border border-[#2c3928] mt-auto">
                     <div className="flex gap-3">
-                        <span className="material-symbols-outlined text-blue-500">info</span>
+                        <LuInfo size={24} color="text-blue-500" />
                         <div>
                             <p className="text-sm font-bold text-white mb-1">Need Help?</p>
                             <p className="text-xs text-gray-400">

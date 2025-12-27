@@ -11,6 +11,7 @@ import { Textarea } from '../ui/Textarea';
 import { NavigationButtons } from '../shared/NavigationButtons';
 import { UploadButton } from '@/lib/uploadthing';
 import Image from 'next/image';
+import { LuCamera, LuPencil } from 'react-icons/lu';
 
 export function BasicInfoForm() {
     const { basicInfo, updateBasicInfo, setCurrentStep } = useOnboardingStore();
@@ -76,13 +77,11 @@ export function BasicInfoForm() {
                                 {photoPreview ? (
                                     <Image src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
-                                    <span className="material-symbols-outlined text-3xl text-gray-400 group-hover:text-blue-500 transition-colors">
-                                        add_a_photo
-                                    </span>
+                                    <LuCamera size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
                                 )}
                             </div>
                             <div className="absolute bottom-0 right-0 bg-blue-600 size-8 rounded-full flex items-center justify-center shadow-lg">
-                                <span className="material-symbols-outlined text-white text-sm">edit</span>
+                                <LuPencil size={12} className='text-white' />
                             </div>
                         </div>
                         <div className="flex flex-col">

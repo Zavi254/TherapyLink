@@ -1,3 +1,5 @@
+import { LuChevronDown } from "react-icons/lu"
+
 export function Select({ label, error, options = [], placeholder, className = "", ...props }) {
     return (
         <div className="flex flex-col gap-2">
@@ -23,9 +25,7 @@ export function Select({ label, error, options = [], placeholder, className = ""
                         </option>
                     ))}
                 </select>
-                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                    expand_more
-                </span>
+                <LuChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
             {error && <span className="text-xs text-red-400">{error}</span>}
         </div>

@@ -2,9 +2,12 @@
 
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import Image from "next/image";
+import { LuEye, LuClock, LuCheck, LuUser, LuBriefcase, LuStar } from "react-icons/lu";
 
 export function ProfilePreview() {
     const { basicInfo, completedSteps } = useOnboardingStore();
+
+    // console.log(basicInfo);
 
     const isVerified = completedSteps.includes(2);
     const hasAvailability = completedSteps.includes(3);
@@ -12,7 +15,7 @@ export function ProfilePreview() {
     return (
         <div className="sticky top-8">
             <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-gray-400">visibility</span>
+                <LuEye className="text-gray-400" size={20} />
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
                     Profile Preview
                 </h3>
@@ -23,12 +26,12 @@ export function ProfilePreview() {
                 <div className="absolute top-4 right-4 z-10">
                     {isVerified ? (
                         <div className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
-                            <span className="material-symbols-outlined text-[14px]">verified</span>
+                            <LuCheck className="text-green-700" size={14} />
                             <span>Verified</span>
                         </div>
                     ) : (
                         <div className="animate-pulse flex items-center gap-1 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold border border-yellow-200 shadow-sm">
-                            <span className="material-symbols-outlined text-[16px]">pending</span>
+                            <LuClock className="text-yellow-700" size={16} />
                             <span>Verification Pending</span>
                         </div>
                     )}
@@ -38,14 +41,14 @@ export function ProfilePreview() {
                 <div className="h-24 bg-gradient-to-r from-blue-500 to-blue-600 relative">
                     <div className="absolute -bottom-10 left-6 p-1 bg-white rounded-full">
                         <div className="size-20 bg-gray-200 rounded-full bg-cover bg-center flex items-center justify-center text-4xl">
-                            {basicInfo.profilePhoto ? (
+                            {basicInfo.profilePhotoUrl ? (
                                 <Image
-                                    src={URL.createObjectURL(basicInfo.profilePhoto)}
+                                    src={URL.createObjectURL(basicInfo.profilePhotoUrl)}
                                     alt="Profile"
                                     className="size-20 rounded-full object-cover"
                                 />
                             ) : (
-                                <span className="material-symbols-outlined text-gray-400">person</span>
+                                <LuUser className="text-gray-400" size={40} />
                             )}
                         </div>
                     </div>
@@ -69,11 +72,11 @@ export function ProfilePreview() {
 
                     <div className="flex items-center gap-4 mb-6 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[18px]">work_history</span>
+                            <LuBriefcase className="text-gray-500" size={18} />
                             <span>{basicInfo.experience || '0'} Yrs Exp.</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[18px] text-yellow-500">star</span>
+                            <LuStar className="text-yellow-500" size={18} />
                             <span className="text-gray-900 font-bold">5.0</span>
                             <span>(New)</span>
                         </div>
