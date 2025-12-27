@@ -9,7 +9,7 @@ import { handlePayoutPaid, handlePayoutFailed } from "./payout";
 
 export async function handleStripeEvent(event) {
     switch (event.type) {
-        case "account_updated":
+        case "account.updated":
             return handleAccountUpdated(event.data.object);
 
         case "payment_intent.succeeded":
