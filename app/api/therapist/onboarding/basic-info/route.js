@@ -39,7 +39,7 @@ export async function POST(req) {
 
         // Update user basic info
         await prisma.user.update({
-            where: { id: user.therapistProfile.id },
+            where: { id: user.id },
             data: {
                 firstName,
                 lastName
@@ -53,6 +53,7 @@ export async function POST(req) {
                 data: {
                     bio,
                     specialization: [specialization],
+                    experience: parseInt(experience)
                 },
             });
         }

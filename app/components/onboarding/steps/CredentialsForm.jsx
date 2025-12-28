@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import { useOnboarding } from "@/lib/hooks/useOnboarding";
 import { useFormValidation } from "@/lib/hooks/useFormValidation";
@@ -9,13 +9,16 @@ import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { NavigationButtons } from "../shared/NavigationButtons";
 import { UploadButton } from "@/lib/uploadthing";
+import { LuAward, LuCloudUpload, LuFileText, LuLock, LuPlus, LuTrash2, LuUpload } from "react-icons/lu";
 
 export default function CredentialsForm() {
     const { credentials, updateCredentials, addCertification, removeCertification, setCurrentStep } = useOnboardingStore();
     const { loading, saveStep, goToNextStep, goToPreviousStep } = useOnboarding();
     const { errors, validate, clearError } = useFormValidation(credentialSchema);
 
-    const [formData, setFormData] = useState(credentials);
+    const uploadButtonRef = useRef(null);
+    const [uploadProgress, setUploadProgress] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [newCert, setNewCert] = useState({ name: "", organization: "" });
 
     useEffect(() => {
@@ -44,8 +47,13 @@ export default function CredentialsForm() {
     ];
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        updateCredentials({ [field]: value });
         clearError(field);
+    }
+
+    const triggerUpload = () => {
+        const input = uploadButtonRef.current?.querySelector('input[type="file"]');
+        input?.click();
     }
 
     const handleAddCertification = () => {
@@ -56,27 +64,22 @@ export default function CredentialsForm() {
     };
 
     const handleContinue = async () => {
-        if (!validate(formData)) {
+        if (!validate(credentials)) {
             return;
         }
 
+        console.log("✅ Validation passed");
+
         try {
-            // save to store
-            updateCredentials(formData);
-
-            // Save to backend
-            await saveStep("/api/therapist/onboarding/credentials", formData);
-
-            // Navigate to next step
-            goToNextStep("/therapist/onboarding/basic-info")
+            await saveStep("/api/therapist/onboarding/credentials", credentials);
+            goToNextStep("/therapist/onboarding/availability");
         } catch (error) {
-            console.error("Error saving credentials:", error);
             alert("Failed to save credentials. Please try again.");
         }
     }
 
     const handleBack = () => {
-        goToPreviousStep("/therapist/onboarding-basic-info");
+        goToPreviousStep("/therapist/onboarding/basic-info");
     }
 
     return (
@@ -89,11 +92,11 @@ export default function CredentialsForm() {
             </header>
 
             <div className="flex flex-col gap-8">
-                <form className="flex flex-col gap-8">
+                <form className="flex flex-col gap-8" onSubmit={(e) => e.preventDefault()}>
                     {/* Professional license */}
                     <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-6 md:p-8 flex flex-col gap-6">
                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            <span className="material-symbols-outlined text-blue-500">badge</span>
+                            <LuAward className="text-blue-500" size={24} />
                             Professional License
                         </h3>
 
@@ -103,7 +106,7 @@ export default function CredentialsForm() {
                                 label={"License Type"}
                                 placeholder={"Select Type"}
                                 options={licenseTypeOptions}
-                                value={formData.licenseType}
+                                value={credentials.licenseType}
                                 onChange={(e) => handleChange("licenseType", e.target.value)}
                                 error={errors.licenseType}
                             />
@@ -111,7 +114,7 @@ export default function CredentialsForm() {
                                 id="licenseNumber"
                                 label="License Number"
                                 placeholder="e.g. PT12345678"
-                                value={formData.licenseNumber}
+                                value={credentials.licenseNumber}
                                 onChange={(e) => handleChange('licenseNumber', e.target.value)}
                                 error={errors.licenseNumber}
                             />
@@ -123,7 +126,7 @@ export default function CredentialsForm() {
                                 label={"State / Region"}
                                 placeholder={"Select State"}
                                 options={stateOptions}
-                                value={formData.licenseState}
+                                value={credentials.licenseState}
                                 onChange={(e) => handleChange('licenseState', e.target.value)}
                                 error={errors.licenseState}
                             />
@@ -131,7 +134,7 @@ export default function CredentialsForm() {
                                 id="expirationDate"
                                 label={"Expiration Date"}
                                 type="date"
-                                value={formData.expirationDate}
+                                value={credentials.expirationDate}
                                 onChange={(e) => handleChange('expirationDate', e.target.value)}
                                 error={errors.expirationDate}
                             />
@@ -143,46 +146,52 @@ export default function CredentialsForm() {
                         <div className="flex justify-between items-start">
                             <div>
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-blue-500">upload_file</span>
+                                    <LuUpload size={24} className="text-blue-500" />
                                     Upload License Document
                                 </h3>
                                 <p className="text-sm text-gray-400 mt-1">Please upload a clear copy of your state license.</p>
                             </div>
                             <div className="flex items-center gap-1 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                                <span className="material-symbols-outlined text-blue-500 text-sm">lock</span>
+                                <LuLock size={18} className="text-blue-500" />
                                 <span className="text-xs font-bold text-blue-500">Secure Upload</span>
                             </div>
                         </div>
 
-                        <div className="border-2 border-dashed border-[#2c3928] hover:border-blue-500/50 transition-colors rounded-xl p-8 flex flex-col items-center justify-center text-center bg-[#131811]">
-                            <div className="size-12 rounded-full bg-[#1e271c] flex items-center justify-center mb-4">
-                                <span className="material-symbols-outlined text-gray-400 text-2xl">cloud_upload</span>
-                            </div>
-                            <UploadButton
-                                endpoint={"licenseDocument"}
-                                onClientUploadComplete={(res) => {
-                                    if (res && res[0]) {
-                                        handleChange("licenseDocumentUrl", res[0].ufsUrl);
-                                    }
-                                }}
-                                onUploadError={(error) => {
-                                    alert(`Upload failed: ${error.message}`);
-                                }}
-                                appearance={{
-                                    button: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg",
-                                    allowedContent: "text-xs text-gray-400 mt-2"
-                                }}
-                            />
-                            <p className="text-xs text-gray-400 mt-2">PDF, JPG, PNG (Max 10MB)</p>
-                        </div>
+                        {!credentials.licenseDocumentUrl ? (
+                            <div className="border-2 border-dashed border-[#2c3928] hover:border-blue-500/50 transition-colors rounded-xl p-8 flex flex-col items-center justify-center text-center bg-[#131811]">
+                                <div className="size-12 rounded-full bg-[#1e271c] flex items-center justify-center mb-4">
+                                    <LuCloudUpload size={32} className="text-gray-400" />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={triggerUpload}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                                >
+                                    Choose File
+                                </button>
+                                <p className="text-xs text-gray-400 mt-3">PDF, JPG, PNG (Max 10MB)</p>
 
-                        {formData.licenseDocumentUrl && (
+                                {isUploading && (
+                                    <div className="flex items-center gap-2 mt-4">
+                                        <div className="w-32 h-2 bg-[#2c3928] rounded overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-500 transition-all duration-300"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-xs text-gray-400 font-medium">
+                                            {uploadProgress}%
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
                             <div className="flex items-center justify-between p-3 bg-[#131811] rounded-lg border border-[#2c3928]">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 rounded bg-red-500/10 flex items-center justify-center text-red-400">
-                                        <span className="material-symbols-outlined">picture_as_pdf</span>
+                                        <LuFileText size={24} />
                                     </div>
-                                    <div>
+                                    <div className="flex flex-col">
                                         <span className="text-sm text-white font-medium">License Document</span>
                                         <span className="text-xs text-gray-400">Uploaded</span>
                                     </div>
@@ -190,11 +199,38 @@ export default function CredentialsForm() {
                                 <button
                                     onClick={() => handleChange("licenseDocumentUrl", null)}
                                     className="text-gray-400 hover:text-red-400 transition-colors p-2"
+                                    type="button"
                                 >
-                                    <span className="material-symbols-outlined">delete</span>
+                                    <LuTrash2 size={24} />
                                 </button>
                             </div>
                         )}
+
+                        {/* Hidden UploadThing Button */}
+                        <div ref={uploadButtonRef} className="opacity-0 pointer-events-none absolute">
+                            <UploadButton
+                                endpoint={"licenseDocument"}
+                                onUploadBegin={(filename) => {
+                                    setIsUploading(true);
+                                    setUploadProgress(0);
+                                }}
+                                onUploadProgress={(p) => setUploadProgress(p)}
+                                onClientUploadComplete={(res) => {
+                                    setUploadProgress(100);
+                                    setTimeout(() => {
+                                        setIsUploading(false);
+                                        setUploadProgress(null);
+                                    }, 500);
+                                    if (res?.[0]) handleChange("licenseDocumentUrl", res[0].url);
+                                }}
+                                onUploadError={(error) => {
+                                    setIsUploading(false);
+                                    setUploadProgress(null);
+                                    alert(`Upload failed: ${error.message}`);
+                                }}
+                            />
+                        </div>
+
                         {errors.licenseDocumentUrl && (
                             <span className="text-xs text-red-400">{errors.licenseDocumentUrl}</span>
                         )}
@@ -207,9 +243,9 @@ export default function CredentialsForm() {
                             <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Optional</span>
                         </div>
 
-                        {formData.additionalCertifications.length > 0 && (
+                        {credentials.additionalCertifications.length > 0 && (
                             <div className="flex flex-col gap-3">
-                                {formData.additionalCertifications.map((cert, index) => (
+                                {credentials.additionalCertifications.map((cert, index) => (
                                     <div key={index} className="flex items-center justify-between p-3 bg-[#131811] rounded-lg border border-[#2c3928]">
                                         <div className="flex flex-col">
                                             <span className="text-sm text-white font-medium">{cert.name}</span>
@@ -220,7 +256,7 @@ export default function CredentialsForm() {
                                             className="text-gray-400 hover:text-red-400 transition-colors p-2"
                                             type="button"
                                         >
-                                            <span className="material-symbols-outlined">delete</span>
+                                            <LuTrash2 size={24} />
                                         </button>
                                     </div>
                                 ))}
@@ -235,7 +271,7 @@ export default function CredentialsForm() {
                                     onChange={(e) => setNewCert(prev => ({ ...prev, name: e.target.value }))}
                                 />
                                 <Input
-                                    placeholder="Issuing Ogranization"
+                                    placeholder="Issuing Organization"
                                     value={newCert.organization}
                                     onChange={(e) => setNewCert(prev => ({ ...prev, organization: e.target.value }))}
                                 />
@@ -245,14 +281,14 @@ export default function CredentialsForm() {
                                 className="flex items-center justify-center gap-2 py-3 border border-dashed border-[#2c3928] rounded-lg text-gray-400 hover:text-white hover:border-blue-500 transition-colors text-sm font-medium w-full"
                                 type="button"
                             >
-                                <span className="material-symbols-outlined text-lg">add</span>
+                                <LuPlus size={18} />
                                 Add another certification
                             </button>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 justify-center lg:justify-start">
-                        <span className="material-symbols-outlined text-blue-500 text-sm">lock</span>
+                        <LuLock size={16} className="text-blue-500" />
                         <p className="text-xs text-gray-400">Your documents are encrypted and secure.</p>
                     </div>
 

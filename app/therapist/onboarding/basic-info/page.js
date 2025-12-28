@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { OnboardingPageWrapper } from "@/app/components/onboarding/OnboardingPageWrapper";
 import { BasicInfoForm } from "@/app/components/onboarding/steps/BasicInfoForm";
-import { ProfilePreview } from "@/app/components/onboarding/shared/ProfileView";
 
 export default async function BasicInfoPage() {
     const { userId } = await auth();

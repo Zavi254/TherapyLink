@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LuCloud } from "react-icons/lu";
 
 export function FileUpload({
     label,
@@ -66,6 +67,7 @@ export function FileUpload({
                 />
                 <label htmlFor="file-upload" className="cursor-pointer w-full">
                     <div className="size-12 rounded-full bg-[#1e271c] flex items-center justify-center mb-4 group-hover:bg-blue-500/10 transition-colors mx-auto">
+                        {/* <LuCloud size={} /> */}
                         <span className="material-symbols-outlined text-gray-400 group-hover:text-blue-500 transition-colors text-2xl">
                             cloud_upload
                         </span>

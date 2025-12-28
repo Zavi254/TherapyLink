@@ -1,5 +1,5 @@
 import useOnboardingStore from '@/lib/store/onboardingStore';
-import { LuInfo, LuShieldCheck } from 'react-icons/lu';
+import { LuCheck, LuInfo, LuShieldCheck } from 'react-icons/lu';
 
 export function OnboardingSidebar() {
     const { currentStep, completedSteps } = useOnboardingStore();
@@ -54,7 +54,7 @@ export function OnboardingSidebar() {
                                                     : 'bg-transparent text-gray-400 border-gray-600'
                                                 }`}>
                                                 {status === 'completed' ? (
-                                                    <span className="material-symbols-outlined text-sm">check</span>
+                                                    <LuCheck size={16} />
                                                 ) : (
                                                     step.number
                                                 )}

@@ -55,7 +55,7 @@ export async function POST(req) {
                 dayData.timeBlocks.forEach((block) => {
                     availabilityData.push({
                         therapistId: user.therapistProfile.id,
-                        dayOfWeek: DAY_MAP[day],
+                        daysOfWeek: DAY_MAP[day],
                         startTime: block.startTime,
                         endTime: block.endTime,
                         isAvailable: true,

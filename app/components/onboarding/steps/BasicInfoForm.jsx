@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useOnboardingStore from '@/lib/store/onboardingStore';
 import { useOnboarding } from '@/lib/hooks/useOnboarding';
 import { useFormValidation } from '@/lib/hooks/useFormValidation';
@@ -18,12 +18,16 @@ export function BasicInfoForm() {
     const { loading, saveStep, goToNextStep } = useOnboarding();
     const { errors, validate, clearError } = useFormValidation(basicInfoSchema);
 
-    const [formData, setFormData] = useState(basicInfo);
-    const [photoPreview, setPhotoPreview] = useState(basicInfo.profilePhotoUrl);
+    const uploadButtonRef = useRef(null);
+    const [uploadProgress, setUploadProgress] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
-    useEffect(() => {
-        setCurrentStep(1);
-    }, [setCurrentStep]);
+    useEffect(() => setCurrentStep(1), [setCurrentStep]);
+
+    const handleChange = (field, value) => {
+        updateBasicInfo({ [field]: value });
+        clearError(field);
+    };
 
     const specializationOptions = [
         { value: 'pt', label: 'Physical Therapy' },
@@ -33,22 +37,21 @@ export function BasicInfoForm() {
         { value: 'rd', label: 'Registered Dietitian' },
     ];
 
-    const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        clearError(field);
-    };
+
+    // Trigger the hidden upload button
+    const triggerUpload = () => {
+        const input = uploadButtonRef.current?.querySelector('input[type="file"]');
+        input?.click();
+    }
 
     const handleContinue = async () => {
-        if (!validate(formData)) {
+        if (!validate(basicInfo)) {
             return;
         }
 
         try {
-            // Save to Zustand store
-            updateBasicInfo(formData);
-
             // Save to backend
-            await saveStep("/api/therapist/onboarding/basic-info", formData);
+            await saveStep("/api/therapist/onboarding/basic-info", basicInfo);
 
             // Navigate to next step
             goToNextStep("/therapist/onboarding/credentials");
@@ -72,15 +75,23 @@ export function BasicInfoForm() {
                 <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-6 md:p-8">
                     <h3 className="text-lg font-bold text-white mb-4">Profile Photo</h3>
                     <div className="flex items-center gap-6">
+                        {/* Image Preview */}
                         <div className="relative group">
-                            <div className="size-24 rounded-full bg-[#2c3928] flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-400 hover:border-blue-500 transition-colors">
-                                {photoPreview ? (
-                                    <Image src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
+                            <div
+                                onClick={triggerUpload}
+                                className="size-24 rounded-full bg-[#2c3928] flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-400 hover:border-blue-500 transition-colors cursor-pointer"
+                            >
+                                {basicInfo.profilePhotoUrl ? (
+                                    <Image src={basicInfo.profilePhotoUrl} width={96} height={96} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     <LuCamera size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
                                 )}
                             </div>
-                            <div className="absolute bottom-0 right-0 bg-blue-600 size-8 rounded-full flex items-center justify-center shadow-lg">
+
+                            <div
+                                onClick={triggerUpload}
+                                className="absolute bottom-0 right-0 bg-blue-600 size-8 rounded-full flex items-center justify-center shadow-lg cursor-pointer"
+                            >
                                 <LuPencil size={12} className='text-white' />
                             </div>
                         </div>
@@ -91,33 +102,71 @@ export function BasicInfoForm() {
                                 Use a professional headshot with good lighting.
                             </p>
                             <div className="flex gap-3">
-                                <UploadButton
-                                    endpoint={"profileImage"}
-                                    onClientUploadComplete={(res) => {
-                                        if (res && res[0]) {
-                                            const url = res[0].ufsUrl;
-                                            setPhotoPreview(url);
-                                            handleChange("profilePhotoUrl", url);
-                                        }
-                                    }}
-                                    onUploadError={(error) => {
-                                        alert(`Upload failed: ${error.message}`);
-                                    }}
-                                    className='text-blue-500 text-sm font-bold hover:underline cursor-pointer ut-button:bg-blue-600 ut-button:ut-readying:bg-blue-600/50'
-                                />
-                                {photoPreview && (
+                                {/* Custom upload button */}
+                                <button
+                                    type="button"
+                                    onClick={triggerUpload}
+                                    className="text-blue-500 text-sm font-bold hover:underline"
+                                >
+                                    Upload
+                                </button>
+
+                                {basicInfo.profilePhotoUrl && (
                                     <button
-                                        onClick={() => {
-                                            setPhotoPreview(null);
-                                            handleChange("profilePhotoUrl", null);
-                                        }}
+                                        onClick={() => handleChange("profilePhotoUrl", null)}
                                         className="text-red-400 text-sm font-bold hover:underline"
                                     >
                                         Remove
                                     </button>
                                 )}
+
+                                {/* Progress bar */}
+                                {isUploading && (
+                                    <div className="flex items-center gap-2">
+                                        <div className="mt-2 w-24 h-2 bg-[#2c3928] rounded overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-500 transition-all"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-xs text-gray-400 font-medium">
+                                            {uploadProgress}%
+                                        </span>
+                                    </div>
+                                )}
+
                             </div>
                         </div>
+
+                        {/* Hidden UploadThing Button */}
+                        <div
+                            ref={uploadButtonRef}
+                            className="opacity-0 pointer-events-none absolute">
+                            <UploadButton
+                                endpoint={"profileImage"}
+                                onUploadBegin={(filename) => {
+                                    setIsUploading(true);
+                                    setUploadProgress(0);
+                                }}
+                                onUploadProgress={(p) => {
+                                    setUploadProgress(p)
+                                }}
+                                onClientUploadComplete={(res) => {
+                                    setUploadProgress(100);
+                                    setTimeout(() => {
+                                        setIsUploading(false);
+                                        setUploadProgress(null);
+                                    }, 500); // show completion for 500ms
+                                    if (res?.[0]) handleChange("profilePhotoUrl", res[0].url);
+                                }}
+                                onUploadError={(error) => {
+                                    setIsUploading(false);
+                                    setUploadProgress(null);
+                                    alert(`Upload failed: ${error.message}`);
+                                }}
+                            />
+                        </div>
+
                     </div>
                 </div>
 
@@ -128,7 +177,7 @@ export function BasicInfoForm() {
                             id="firstName"
                             label="First Name"
                             placeholder="e.g. Sarah"
-                            value={formData.firstName}
+                            value={basicInfo.firstName}
                             onChange={(e) => handleChange('firstName', e.target.value)}
                             error={errors.firstName}
                         />
@@ -136,7 +185,7 @@ export function BasicInfoForm() {
                             id="lastName"
                             label="Last Name"
                             placeholder="e.g. Jenkins"
-                            value={formData.lastName}
+                            value={basicInfo.lastName}
                             onChange={(e) => handleChange('lastName', e.target.value)}
                             error={errors.lastName}
                         />
@@ -148,7 +197,7 @@ export function BasicInfoForm() {
                             label="Phone Number"
                             type="tel"
                             placeholder="(555) 000-0000"
-                            value={formData.phone}
+                            value={basicInfo.phone}
                             onChange={(e) => handleChange('phone', e.target.value)}
                             error={errors.phone}
                         />
@@ -157,7 +206,7 @@ export function BasicInfoForm() {
                             label="Years of Experience"
                             type="number"
                             placeholder="e.g. 8"
-                            value={formData.experience}
+                            value={basicInfo.experience}
                             onChange={(e) => handleChange('experience', e.target.value)}
                             error={errors.experience}
                         />
@@ -168,7 +217,7 @@ export function BasicInfoForm() {
                         label="Primary Specialization"
                         placeholder="Select your specialization"
                         options={specializationOptions}
-                        value={formData.specialization}
+                        value={basicInfo.specialization}
                         onChange={(e) => handleChange('specialization', e.target.value)}
                         error={errors.specialization}
                     />
@@ -179,7 +228,7 @@ export function BasicInfoForm() {
                         placeholder="Describe your approach to therapy and your background..."
                         rows={5}
                         maxLength={500}
-                        value={formData.bio}
+                        value={basicInfo.bio}
                         onChange={(e) => handleChange('bio', e.target.value)}
                         error={errors.bio}
                         showCount

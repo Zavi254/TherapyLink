@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import useOnboardingStore from "@/lib/store/onboardingStore";
 import { useOnboarding } from "@/lib/hooks/useOnboarding";
 import { useFormValidation } from "@/lib/hooks/useFormValidation";
 import { availabilitySchema } from "@/lib/validations/onboardingSchema";
-import { Input } from "../ui/Input";
 import { Toggle } from "../ui/Toggle";
 import { NavigationButtons } from "../shared/NavigationButtons";
+import { LuCalendar, LuDollarSign, LuPlus, LuX } from "react-icons/lu";
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'saturday', 'sunday'];
 const DAY_LABELS = {
@@ -31,13 +31,10 @@ export default function AvailabilityForm() {
         applyScheduleToWeekdays,
         applyScheduleToAllDays,
         setCurrentStep,
-
     } = useOnboardingStore();
 
     const { loading, saveStep, goToNextStep, goToPreviousStep } = useOnboarding();
     const { errors, validate } = useFormValidation(availabilitySchema);
-
-    const [hourlyRate, setHourlyRate] = useState(availability.hourlyRate);
 
     useEffect(() => {
         setCurrentStep(3);
@@ -53,6 +50,10 @@ export default function AvailabilityForm() {
         updateTimeBlock(day, index, updatedBlock);
     }
 
+    const handleRateChange = (value) => {
+        updateAvailability({ hourlyRate: Number(value) });
+    }
+
     const calculateNetRate = (rate) => {
         const platformFee = 0.15; // 15%
         return (rate * (1 - platformFee)).toFixed(2);
@@ -61,7 +62,7 @@ export default function AvailabilityForm() {
     const handleContinue = async () => {
         const formData = {
             schedule: availability.schedule,
-            hourlyRate,
+            hourlyRate: availability.hourlyRate,
         };
 
         if (!validate(formData)) {
@@ -70,16 +71,7 @@ export default function AvailabilityForm() {
         }
 
         try {
-            // Save to store
-            updateAvailability({ hourlyRate });
-
-            // Save to backend
-            await saveStep("/api/therapist/onboarding/availability", {
-                schedule: availability.schedule,
-                hourlyRate,
-            });
-
-            // Navigate to next step
+            await saveStep("/api/therapist/onboarding/availability", formData);
             goToNextStep("/therapist/onboarding/payment");
         } catch (error) {
             console.error('Error saving availability:', error);
@@ -104,7 +96,7 @@ export default function AvailabilityForm() {
                     <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-6 md:p-8 flex flex-col gap-6">
                         <div className="flex justify-between items-center">
                             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-blue-500">calendar_month</span>
+                                <LuCalendar size={20} color="text-blue-500" />
                                 Weekly Schedule
                             </h3>
                         </div>
@@ -112,22 +104,22 @@ export default function AvailabilityForm() {
                         <div className="flex flex-col gap-4">
                             {DAYS.map((day) => {
                                 const dayData = availability.schedule[day];
-                                const isEnabled = dayData.enabled;
+                                const isEnabled = dayData?.enabled || false;
 
                                 return (
                                     <div
                                         key={day}
-                                        className={`flex flex-col gap-4 bg-[#131811] rounded-xl border transition-all ${isEnabled
-                                            ? 'border-green-500/30 relative overflow-hidden'
-                                            : 'border-[#2c3928] opacity-80 hover:opacity-100'
+                                        className={`flex flex-col gap-4 p-4 rounded-xl border transition-all ${isEnabled
+                                            ? 'bg-[#1a2818] border-green-500/30 relative'
+                                            : 'bg-[#131811] border-[#2c3928]'
                                             }`}
                                     >
                                         {isEnabled && (
-                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500 rounded-l-xl"></div>
                                         )}
 
-                                        <div className="flex items-center justify-between">
-                                            <span className={`font-bold ${isEnabled} ? 'text-white' : 'text-gray-400'`}>
+                                        <div className="flex items-center justify-between pl-2">
+                                            <span className={`font-semibold text-base ${isEnabled ? 'text-white' : 'text-gray-400'}`}>
                                                 {DAY_LABELS[day]}
                                             </span>
                                             <Toggle
@@ -136,8 +128,8 @@ export default function AvailabilityForm() {
                                             />
                                         </div>
 
-                                        {isEnabled && (
-                                            <div className="flex flex-col gap-3 mt-1 pl-1">
+                                        {isEnabled && dayData?.timeBlocks && (
+                                            <div className="flex flex-col gap-3 pl-1">
                                                 {dayData.timeBlocks.map((block, index) => (
                                                     <div key={index} className="flex items-center gap-3">
                                                         <div className="flex items-center gap-2 flex-1">
@@ -145,14 +137,14 @@ export default function AvailabilityForm() {
                                                                 type="time"
                                                                 value={block.startTime}
                                                                 onChange={(e) => handleTimeChange(day, index, 'startTime', e.target.value)}
-                                                                className="w-full bg-[#1e271c] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                                                className="flex-1 bg-[#0d1109] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                             />
-                                                            <span className="text-gray-400 text-sm">to</span>
+                                                            <span className="text-gray-500 text-sm">to</span>
                                                             <input
                                                                 type="time"
                                                                 value={block.endTime}
                                                                 onChange={(e) => handleTimeChange(day, index, 'endTime', e.target.value)}
-                                                                className="w-full bg-[#1e271c] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                                                className="flex-1 bg-[#0d1109] border border-[#2c3928] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                             />
                                                         </div>
                                                         <button
@@ -160,17 +152,17 @@ export default function AvailabilityForm() {
                                                             className="text-gray-400 hover:text-red-400 transition-colors p-1"
                                                             type="button"
                                                         >
-                                                            <span className="material-symbols-outlined text-lg">close</span>
+                                                            <LuX size={20} />
                                                         </button>
                                                     </div>
                                                 ))}
 
                                                 <button
                                                     onClick={() => handleAddTimeBlock(day)}
-                                                    className="flex items-center gap-2 text-sm text-blue-500 font-bold hover:text-blue-400 mt-2 self-start py-1 px-2 rounded hover:bg-blue-500/10 transition-colors"
+                                                    className="flex items-center gap-2 text-sm text-blue-500 font-semibold hover:text-blue-400 mt-1 self-start py-1 px-2 rounded hover:bg-blue-500/10 transition-colors"
                                                     type="button"
                                                 >
-                                                    <span className="material-symbols-outlined text-lg">add</span>
+                                                    <LuPlus size={24} />
                                                     Add time block
                                                 </button>
                                             </div>
@@ -181,17 +173,17 @@ export default function AvailabilityForm() {
                             })}
                         </div>
 
-                        <div>
+                        <div className="flex gap-3 flex-wrap">
                             <button
                                 onClick={applyScheduleToWeekdays}
-                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all flex-1"
+                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all"
                                 type="button"
                             >
                                 Apply to all weekdays
                             </button>
                             <button
                                 onClick={applyScheduleToAllDays}
-                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all flex-1"
+                                className="text-sm font-semibold text-blue-500 hover:text-white border border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/10 rounded-lg px-4 py-2 transition-all"
                                 type="button"
                             >
                                 Apply to all days
@@ -202,7 +194,7 @@ export default function AvailabilityForm() {
                     {/* Hourly Rate */}
                     <div className="bg-[#1e271c] border border-[#2c3928] rounded-2xl p-6 md:p-8 flex flex-col gap-6">
                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            <span className="material-symbols-outlined text-blue-500">payments</span>
+                            <LuDollarSign size={20} color="text-blue-500" />
                             Hourly Rate
                         </h3>
 
@@ -213,8 +205,8 @@ export default function AvailabilityForm() {
                                 </span>
                                 <input
                                     type="number"
-                                    value={hourlyRate}
-                                    onChange={(e) => setHourlyRate(Number(e.target.value))}
+                                    value={availability.hourlyRate}
+                                    onChange={(e) => handleRateChange(e.target.value)}
                                     className="w-full bg-[#131811] border border-[#2c3928] rounded-xl pl-12 pr-24 py-5 text-white text-3xl font-bold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-white/20"
                                     placeholder="0"
                                     min={50}
@@ -227,7 +219,7 @@ export default function AvailabilityForm() {
                             <p className="text-sm text-gray-400">
                                 You&apos;ll receive{" "}
                                 <span className="text-green-500 font-bold">
-                                    85% (${calculateNetRate(hourlyRate)})
+                                    85% (${calculateNetRate(availability.hourlyRate)})
                                 </span>{' '}
                                 after each session. Platform fee: 15%
                             </p>

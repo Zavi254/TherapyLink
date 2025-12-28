@@ -1,9 +1,12 @@
+import { LuRefreshCcw } from "react-icons/lu"
+
 export function Button({
     children,
     variant = "primary",
     icon,
     iconPosition = "right",
     loading = false,
+    type = "button",
     className = "",
     ...props
 }) {
@@ -15,13 +18,14 @@ export function Button({
 
     return (
         <button
+            type={type}
             disabled={loading}
             className={`font-bold py-3 px-8 rounded-full transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
             {...props}
         >
             {loading ? (
                 <>
-                    <span className="material-symbols-outlined animate-spin">refresh</span>
+                    <LuRefreshCcw size={16} className="animate-spin" />
                     Loading...
                 </>
             ) : (

@@ -7,8 +7,6 @@ import { LuEye, LuClock, LuCheck, LuUser, LuBriefcase, LuStar } from "react-icon
 export function ProfilePreview() {
     const { basicInfo, completedSteps } = useOnboardingStore();
 
-    // console.log(basicInfo);
-
     const isVerified = completedSteps.includes(2);
     const hasAvailability = completedSteps.includes(3);
 
@@ -43,7 +41,7 @@ export function ProfilePreview() {
                         <div className="size-20 bg-gray-200 rounded-full bg-cover bg-center flex items-center justify-center text-4xl">
                             {basicInfo.profilePhotoUrl ? (
                                 <Image
-                                    src={URL.createObjectURL(basicInfo.profilePhotoUrl)}
+                                    src={basicInfo.profilePhotoUrl}
                                     alt="Profile"
                                     className="size-20 rounded-full object-cover"
                                 />
@@ -59,8 +57,8 @@ export function ProfilePreview() {
                     <div className="flex justify-between items-start mb-2">
                         <div>
                             <h2 className="text-xl font-bold text-gray-900">
-                                {basicInfo.firstName && basicInfo.lastName
-                                    ? `${basicInfo.firstName} ${basicInfo.lastName}`
+                                {basicInfo.firstName || basicInfo.lastName
+                                    ? `${basicInfo.firstName || ""} ${basicInfo.lastName || ""}`.trim()
                                     : "Your Name"
                                 }
                             </h2>
