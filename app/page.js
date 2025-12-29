@@ -1,7 +1,14 @@
-export default function Home() {
-  return (
-    <div>
-      <h1 className="text-3xl font-thin underline">Hello, Next.js!</h1>
-    </div>
-  );
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+
+export default async function Home() {
+
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
+  // if logged in, redirect based on role to dashboard
+  redirect("/dashboard");
 }
