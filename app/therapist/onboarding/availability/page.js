@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AvailabilityForm from "@/app/components/onboarding/steps/AvailabilityForm";
-import { OnboardingPageWrapper } from "@/app/components/onboarding/OnboardingPageWrapper";
+import { OnboardingPageWrapper } from "@/app/components/onboarding/layout/OnboardingPageWrapper";
 
 export default async function AvailabilityPage() {
     const { userId } = await auth();

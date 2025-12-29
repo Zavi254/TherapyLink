@@ -1,7 +1,7 @@
 "use client";
 
-import { OnboardingLayout } from "./layout/OnboardingLayout";
-import { ProfilePreview } from "./shared/ProfileView";
+import { OnboardingLayout } from "./OnboardingLayout";
+import { ProfilePreview } from "../shared/ProfileView";
 
 export function OnboardingPageWrapper({ children }) {
     return (
