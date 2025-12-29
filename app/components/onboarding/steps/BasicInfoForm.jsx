@@ -25,7 +25,16 @@ export function BasicInfoForm() {
     useEffect(() => setCurrentStep(1), [setCurrentStep]);
 
     const handleChange = (field, value) => {
-        updateBasicInfo({ [field]: value });
+        // Special handling for specialization to store the full label
+        if (field === "specialization") {
+            const selected = specializationOptions.find(opt => opt.value === value);
+            updateBasicInfo({
+                specialization: value,
+                specializationLabel: selected?.label || value
+            });
+        } else {
+            updateBasicInfo({ [field]: value });
+        }
         clearError(field);
     };
 

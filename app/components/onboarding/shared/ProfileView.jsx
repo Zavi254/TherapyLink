@@ -63,7 +63,7 @@ export function ProfilePreview() {
                                 }
                             </h2>
                             <p className="text-sm text-blue-600 font-semibold">
-                                {basicInfo.specialization || "Your Specialization"}
+                                {basicInfo.specializationLabel || basicInfo.specialization || "Your Specialization"}
                             </p>
                         </div>
                     </div>

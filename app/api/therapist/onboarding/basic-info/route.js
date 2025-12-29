@@ -14,7 +14,7 @@ export async function POST(req) {
         }
 
         const body = await req.json();
-        const { firstName, lastName, phone, experience, specialization, bio } = body;
+        const { firstName, lastName, phone, experience, specialization, specializationLabel, bio } = body;
 
         // Validate required fields
         if (!firstName || !lastName || !phone || !experience || !specialization || !bio) {
@@ -52,7 +52,7 @@ export async function POST(req) {
                 where: { id: user.therapistProfile.id },
                 data: {
                     bio,
-                    specialization: [specialization],
+                    specialization: [specializationLabel || specialization],
                     experience: parseInt(experience)
                 },
             });
