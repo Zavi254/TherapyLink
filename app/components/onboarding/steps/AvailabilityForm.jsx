@@ -66,7 +66,6 @@ export default function AvailabilityForm() {
         };
 
         if (!validate(formData)) {
-            console.log("Errors:", errors);
             alert(errors.schedule || 'Please set availability for atleast one day');
             return;
         }
