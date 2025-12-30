@@ -9,7 +9,7 @@ import { Toggle } from "../ui/Toggle";
 import { NavigationButtons } from "../shared/NavigationButtons";
 import { LuCalendar, LuDollarSign, LuPlus, LuX } from "react-icons/lu";
 
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'saturday', 'sunday'];
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = {
     monday: 'Monday',
     tuesday: 'Tuesday',
@@ -66,6 +66,7 @@ export default function AvailabilityForm() {
         };
 
         if (!validate(formData)) {
+            console.log("Errors:", errors);
             alert(errors.schedule || 'Please set availability for atleast one day');
             return;
         }
